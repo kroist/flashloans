@@ -3,31 +3,31 @@
 
 #[openbrush::contract]
 mod psp22_token_a {
-        use ink_storage::traits::SpreadAllocate;
-        use openbrush::traits::Storage;
-        use openbrush::contracts::psp22::extensions::burnable::*;
-        use openbrush::contracts::psp22::extensions::mintable::*;
+    use ink_storage::traits::SpreadAllocate;
+    use openbrush::traits::Storage;
+    use openbrush::contracts::psp22::extensions::burnable::*;
+    use openbrush::contracts::psp22::extensions::mintable::*;
+
+    #[ink(storage)]
+    #[derive(Default, SpreadAllocate, Storage)]
+    pub struct PSP22TokenA {
+        #[storage_field]
+        psp22: psp22::Data,
+    }
     
-        #[ink(storage)]
-        #[derive(Default, SpreadAllocate, Storage)]
-        pub struct PSP22TokenA {
-            #[storage_field]
-            psp22: psp22::Data,
-        }
+    impl PSP22 for PSP22TokenA {}
+    impl PSP22Burnable for PSP22TokenA {}
+    impl PSP22Mintable for PSP22TokenA {}
         
-        impl PSP22 for PSP22TokenA {}
-        impl PSP22Burnable for PSP22TokenA {}
-        impl PSP22Mintable for PSP22TokenA {}
-         
-        impl PSP22TokenA {
-            #[ink(constructor)]
-            pub fn new(initial_supply: Balance) -> Self {
-                ink_lang::codegen::initialize_contract(|_instance: &mut Self|{
-                    _instance._mint(_instance.env().caller(), initial_supply).expect("Should mint"); 
-                })
-            }
+    impl PSP22TokenA {
+        #[ink(constructor)]
+        pub fn new(initial_supply: Balance) -> Self {
+            ink_lang::codegen::initialize_contract(|_instance: &mut Self|{
+                _instance._mint(_instance.env().caller(), initial_supply).expect("Should mint"); 
+            })
         }
     }
+}
 
 #[cfg(test)]
 mod tests {
