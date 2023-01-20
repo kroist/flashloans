@@ -1,5 +1,5 @@
 [package]
-name = "default_provider"
+name = "default_borrower"
 version = "1.0.0"
 authors = ["[Grzegorz Gawryal] <[grzegorz.gawryal@student.uj.edu.pl]>"]
 edition = "2021"
@@ -15,7 +15,7 @@ scale = { package = "parity-scale-codec", version = "3", default-features = fals
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
 [lib]
-name = "default_provider"
+name = "default_borrower"
 path = "lib.rs"
 crate-type = [
 	# Used for normal contract Wasm blobs.
