@@ -1,5 +1,5 @@
 [package]
-name = "default_provider"
+name = "flashloans"
 version = "1.0.0"
 authors = ["[Grzegorz Gawryal] <[grzegorz.gawryal@student.uj.edu.pl]>"]
 edition = "2021"
@@ -15,12 +15,8 @@ scale = { package = "parity-scale-codec", version = "3", default-features = fals
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
 [lib]
-name = "default_provider"
+name = "flashloans"
 path = "lib.rs"
-crate-type = [
-	# Used for normal contract Wasm blobs.
-	"cdylib",
-]
 
 [features]
 default = ["std"]

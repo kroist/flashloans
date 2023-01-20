@@ -1,12 +1,12 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-mod provider;
 use ink_lang as ink;
+extern crate flashloans;
 
 #[ink::contract]
 mod default_provider {
-    use crate::provider::FlashloanProvider;
+    use flashloans::provider::FlashloanProvider;
     use ink_storage::traits::SpreadAllocate;
 
     #[ink(storage)]
@@ -47,7 +47,7 @@ mod default_provider {
 #[cfg(test)]
 mod tests {
     use crate::default_provider::DefaultProvider;
-    use crate::provider::FlashloanProvider;
+    use flashloans::provider::FlashloanProvider;
     use ink_env::{test, DefaultEnvironment};
     use ink_lang as ink;
 

@@ -1,6 +1,3 @@
-#![cfg_attr(not(feature = "std"), no_std)]
-#![feature(min_specialization)]
-
 use ink_lang as ink;
 
 #[ink::trait_definition]

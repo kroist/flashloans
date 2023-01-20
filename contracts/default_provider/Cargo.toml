@@ -1,10 +1,12 @@
 [package]
-name = "default_borrower"
+name = "default_provider"
 version = "1.0.0"
 authors = ["[Grzegorz Gawryal] <[grzegorz.gawryal@student.uj.edu.pl]>"]
 edition = "2021"
 
 [dependencies]
+flashloans = {path = "../../traits/flashloans", default-features = false}
+
 ink_primitives = { version = "3.3", default-features = false }
 ink_metadata = { version = "3.3", default-features = false, features = ["derive"], optional = true }
 ink_env = { version = "3.3", default-features = false }
@@ -15,7 +17,7 @@ scale = { package = "parity-scale-codec", version = "3", default-features = fals
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
 [lib]
-name = "default_borrower"
+name = "default_provider"
 path = "lib.rs"
 crate-type = [
 	# Used for normal contract Wasm blobs.

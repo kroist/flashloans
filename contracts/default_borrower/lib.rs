@@ -1,11 +1,12 @@
 #![cfg_attr(not(feature = "std"), no_std)]
+#![feature(min_specialization)]
 
-mod borrower;
 use ink_lang as ink;
+extern crate flashloans;
 
 #[ink::contract]
 mod default_borrower {
-    use crate::borrower::FlashloanBorrower;
+    use flashloans::borrower::FlashloanBorrower;
     use ink_storage::traits::SpreadAllocate;
 
 
