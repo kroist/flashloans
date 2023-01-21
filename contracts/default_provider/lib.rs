@@ -1,13 +1,15 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
-
 use ink_lang as ink;
-extern crate flashloans;
 
-#[ink::contract]
+
+#[openbrush::contract]
 mod default_provider {
-    use flashloans::provider::FlashloanProvider;
+    use flashloans::traits::provider::*;
+    use flashloans::traits::borrower::FlashloanBorrowerRef;
     use ink_storage::traits::SpreadAllocate;
+    use openbrush::contracts::traits::psp22::PSP22Ref;
+    use openbrush::traits::DefaultEnv;
 
     #[ink(storage)]
     #[derive(SpreadAllocate)]
@@ -24,12 +26,25 @@ mod default_provider {
 
         #[ink(message)]
         fn get_max_allowed_loan(&self, token: AccountId) -> u128 {
-            panic!("TODO")
+            PSP22Ref::balance_of(&token, Self::env().account_id())
         }
 
         #[ink(message)]
-        fn provide_flashloan(&self, receiver: ink_env::AccountId, token: AccountId, amount: u128) -> bool {
-            panic!("TODO")
+        fn provide_flashloan(&self, receiver: AccountId, token: AccountId, amount: u128) -> Result<(), FlashloanProvidingError> {
+            if self.get_max_allowed_loan(token) > amount {
+                return Err(FlashloanProvidingError::TooLargeAmount)
+            }
+            
+            let expected_fee = self.get_fee(token, amount);
+            let expected_balance_after = expected_fee + PSP22Ref::balance_of(&token, Self::env().account_id());
+
+            PSP22Ref::transfer(&token, receiver, amount, Vec::<u8>::new());
+            FlashloanBorrowerRef::on_flashloan(&receiver, token, Self::env().account_id(), amount);
+            
+            if PSP22Ref::balance_of(&token, Self::env().account_id()) < expected_balance_after {
+                return Err(FlashloanProvidingError::FlashloanNotReturned)
+            }
+            Ok(())
         }
     }
 
