@@ -7,7 +7,8 @@ pub trait FlashloanBorrower {
         &self, 
         provider: AccountId, 
         token: AccountId, 
-        amount: u128
+        amount: u128,
+        fee: u128
     ) -> bool;
 }
 

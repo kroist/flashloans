@@ -1,23 +1,24 @@
 [package]
-name = "default_borrower"
+name = "example_borrower"
 version = "1.0.0"
 authors = ["[Grzegorz Gawryal] <[grzegorz.gawryal@student.uj.edu.pl]>"]
 edition = "2021"
 
 [dependencies]
-flashloans = {path = "../../traits/flashloans", default-features = false}
+flashloans = {path = "../../", default-features = false}
 
 ink_primitives = { version = "3.3", default-features = false }
 ink_metadata = { version = "3.3", default-features = false, features = ["derive"], optional = true }
 ink_env = { version = "3.3", default-features = false }
 ink_storage = { version = "3.3", default-features = false }
 ink_lang = { version = "3.3", default-features = false }
+openbrush = { version = "~2.2.0", default-features = false, features=["psp22"]}
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
 [lib]
-name = "default_borrower"
+name = "example_borrower"
 path = "lib.rs"
 crate-type = [
     # Used for normal contract Wasm blobs.
@@ -33,5 +34,7 @@ std = [
     "ink_primitives/std",
     "scale/std",
     "scale-info/std",
+
+    "flashloans/std",
 ]
 ink-as-dependency = []

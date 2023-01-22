@@ -1,7 +1,5 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
-use ink_lang as ink;
-
 
 #[openbrush::contract]
 mod default_provider {
@@ -35,11 +33,14 @@ mod default_provider {
                 return Err(FlashloanProvidingError::TooLargeAmount)
             }
             
-            let expected_fee = self.get_fee(token, amount);
-            let expected_balance_after = expected_fee + PSP22Ref::balance_of(&token, Self::env().account_id());
+            let fee = self.get_fee(token, amount);
+            let expected_balance_after = fee + PSP22Ref::balance_of(&token, Self::env().account_id());
 
-            PSP22Ref::transfer(&token, receiver, amount, Vec::<u8>::new());
-            FlashloanBorrowerRef::on_flashloan(&receiver, token, Self::env().account_id(), amount);
+            let transfer_status = PSP22Ref::transfer(&token, receiver, amount, Vec::<u8>::new());
+            if transfer_status.is_err() {
+                return Err(FlashloanProvidingError::TooLargeAmount)
+            }
+            FlashloanBorrowerRef::on_flashloan(&receiver, token, Self::env().account_id(), amount, fee);
             
             if PSP22Ref::balance_of(&token, Self::env().account_id()) < expected_balance_after {
                 return Err(FlashloanProvidingError::FlashloanNotReturned)
@@ -58,23 +59,26 @@ mod default_provider {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use crate::default_provider::DefaultProvider;
-    use flashloans::provider::FlashloanProvider;
-    use ink_env::{test, DefaultEnvironment};
     use ink_lang as ink;
-
+    use crate::default_provider::DefaultProvider;
+    use flashloans::traits::provider::*;
+    use openbrush::test_utils::accounts;
+    
     #[ink::test]
     fn get_fee_works() {
-        let token = test::default_accounts::<DefaultEnvironment>().eve;
+        let token_account_id = accounts().charlie;
+
         let provider = DefaultProvider::new(900); // 0.09%
-        assert_eq!(provider.get_fee(token, 1000000), 900);
-        assert_eq!(provider.get_fee(token, 10000), 9);
-        assert_eq!(provider.get_fee(token, 20000), 18);
-        assert_eq!(provider.get_fee(token, 20001), 19);
-        assert_eq!(provider.get_fee(token, 1), 1);
-        assert_eq!(provider.get_fee(token, 0), 0);
+
+        assert_eq!(provider.get_fee(token_account_id, 1000000), 900);
+        assert_eq!(provider.get_fee(token_account_id, 10000), 9);
+        assert_eq!(provider.get_fee(token_account_id, 20000), 18);
+        assert_eq!(provider.get_fee(token_account_id, 20001), 19);
+        assert_eq!(provider.get_fee(token_account_id, 1), 1);
+        assert_eq!(provider.get_fee(token_account_id, 0), 0);
     }
+    // other methods can't be tested, since `off-chain environment does not support contract invocation` 
 }
+

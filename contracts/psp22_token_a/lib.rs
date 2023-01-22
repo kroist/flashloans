@@ -39,10 +39,9 @@ mod tests {
 
     #[ink::test]
     fn balance_of_works() {
-        let accounts = accounts();
-        test::set_caller::<DefaultEnvironment>(accounts.alice);
+        test::set_caller::<DefaultEnvironment>(accounts().alice);
         let mytoken = PSP22TokenA::new(1000);
-        assert_eq!(mytoken.balance_of(accounts.alice), 1000);
-        assert_eq!(mytoken.balance_of(accounts.bob), 0);
+        assert_eq!(mytoken.balance_of(accounts().alice), 1000);
+        assert_eq!(mytoken.balance_of(accounts().bob), 0);
     }
 }
