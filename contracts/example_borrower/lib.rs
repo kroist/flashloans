@@ -9,6 +9,7 @@ mod default_borrower {
     use ink_storage::traits::SpreadAllocate;
     use ink_prelude::vec::Vec;
     use openbrush::contracts::traits::psp22::PSP22Ref;
+    use ink_lang::codegen::Env;
 
     #[ink(storage)]
     #[derive(SpreadAllocate)]
@@ -16,16 +17,14 @@ mod default_borrower {
 
     impl FlashloanBorrower for DefaultBorrower {
         #[ink(message)]
-        fn on_flashloan(&self, provider: AccountId, token: AccountId, amount: u128, fee: u128) -> bool {
-            // if self.env().caller() != TODO {return false}
-
+        fn on_flashloan(&mut self, provider: AccountId, token: AccountId, amount: u128, fee: u128) -> Result<(), FlashloanBorrowerError> {
             // actual code
 
             let transfer_status = PSP22Ref::transfer(&token, provider, amount+fee, Vec::<u8>::new());
             if transfer_status.is_err() {
-                return false;
+                return Err(FlashloanBorrowerError::ReturnToLenderFailed);
             }
-            return true;
+            Ok(())
         }
     }
 

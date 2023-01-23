@@ -5,7 +5,10 @@ use openbrush::traits::AccountId;
 pub enum FlashloanProvidingError {
     TooLargeAmount,
     FlashloanNotReturned,
-    TransferError
+    TransferError,
+    ReceiverIsNotCallable,
+    ReceiverMethodFailed,
+    CancelledByBorrower,
 }
 
 #[openbrush::trait_definition]

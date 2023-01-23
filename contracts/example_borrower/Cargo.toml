@@ -1,6 +1,6 @@
 [package]
 name = "example_borrower"
-version = "1.0.0"
+version = "1.0.1"
 authors = ["[Grzegorz Gawryal] <[grzegorz.gawryal@student.uj.edu.pl]>"]
 edition = "2021"
 
@@ -37,5 +37,6 @@ std = [
     "scale-info/std",
 
     "flashloans/std",
+    "openbrush/std",
 ]
 ink-as-dependency = []

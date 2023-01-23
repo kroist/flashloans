@@ -1,11 +1,12 @@
 [package]
 name = "default_provider"
-version = "1.0.0"
+version = "1.0.1"
 authors = ["[Grzegorz Gawryal] <[grzegorz.gawryal@student.uj.edu.pl]>"]
 edition = "2021"
 
 [dependencies]
 flashloans = {path = "../../", default-features = false}
+example_borrower = {path = "../example_borrower", default_features = false}
 
 ink_primitives = { version = "3.3", default-features = false }
 ink_metadata = { version = "3.3", default-features = false, features = ["derive"], optional = true }
@@ -37,5 +38,6 @@ std = [
     "scale-info/std",
 
     "flashloans/std",
+    "openbrush/std",
 ]
 ink-as-dependency = []

@@ -8,7 +8,12 @@ mod default_provider {
     use ink_storage::traits::SpreadAllocate;
     use ink_prelude::vec::Vec;
     use openbrush::contracts::traits::psp22::PSP22Ref;
-    use openbrush::traits::DefaultEnv;
+    use openbrush::traits::{DefaultEnv, Flush};
+
+    use ink_env::{
+        CallFlags,
+        Error as EnvError,
+    };
 
     #[ink(storage)]
     #[derive(SpreadAllocate)]
@@ -41,8 +46,26 @@ mod default_provider {
             if transfer_status.is_err() {
                 return Err(FlashloanProvidingError::TransferError)
             }
-            FlashloanBorrowerRef::on_flashloan(&receiver, Self::env().account_id(),  token, amount, fee);
-            
+
+            // normally, we could be able to call FlashloanBorrowerRef.on_flashloan(...), but then 
+            // transfers of token in that method unexpectedly fail - I have no reason why :s
+            self.flush();
+            let builder = FlashloanBorrowerRef::on_flashloan_builder(&receiver, Self::env().account_id(), token, amount, fee).call_flags(CallFlags::default().set_allow_reentry(false));
+            let result = match builder.fire() {
+                Ok(Ok(())) => Ok(()),
+                Ok(Err(_)) => Err(FlashloanProvidingError::CancelledByBorrower),
+                Err(e) => {
+                    match e {
+                        EnvError::NotCallable => Err(FlashloanProvidingError::ReceiverIsNotCallable),
+                        EnvError::CalleeTrapped => Err(FlashloanProvidingError::ReceiverMethodFailed),
+                        _ => Err(FlashloanProvidingError::CancelledByBorrower),
+                    }
+                }
+            };
+            self.load();
+            if result.is_err() { return result }
+
+            // make sure receiver returned assets
             if PSP22Ref::balance_of(&token, Self::env().account_id()) < expected_balance_after {
                 return Err(FlashloanProvidingError::FlashloanNotReturned)
             }
