@@ -11,7 +11,7 @@ pub enum FlashloanBorrowerError {
 
 #[openbrush::trait_definition]
 pub trait FlashloanBorrower {
-    // Function, that will be called by FlashloanProvider after it lends some tokens ot FlashloanBorrower.
+    // Function, that will be called by FlashloanProvider after it lends some tokens to FlashloanBorrower.
     // At the end, it must return `amount` + `fee` `tokens` to `provider`.
     #[ink(message)]
     fn on_flashloan(
