@@ -1,3 +1,5 @@
+[![Built with ink!](https://raw.githubusercontent.com/paritytech/ink/master/.images/badge.svg)](https://github.com/paritytech/ink)
+
 ## Development
 Follow the [Aleph Zero guide](https://docs.alephzero.org/aleph-zero/build/installing-required-tools) to install rust and ink!. Note, that:
 * probably you'll have to run `cargo install dylint-link` during the installation, when prompted so,
