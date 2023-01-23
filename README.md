@@ -4,7 +4,7 @@
 ## Development
 Follow the [Aleph Zero guide](https://docs.alephzero.org/aleph-zero/build/installing-required-tools) to install rust and ink!. Note, that:
 * probably you'll have to run `cargo install dylint-link` during the installation, when prompted so,
-* You can now safely execute `cargo install cargo-contract` to install cargo-contract, instead of installing a specific snapshot as ntoted in the tutorial.
+* You can now safely execute `cargo install cargo-contract` to install cargo-contract, instead of installing a specific snapshot as noted in the tutorial.
 
 When adding new contract/library, make sure the `ink!` version used in `Cargo.toml` is `3.3`.
 
@@ -14,7 +14,7 @@ There are only a few unit tests, because cross-contract unit testing is not avai
 To run these tests, type `make test` in console.
 
 ## Deployment to Aleph Zero Testnet:
-1. `make all` or `make all-unoptimized`.
+1. `make all` or `make all RELEASE_FLAGS="--optimization-passes=0"`.
 2. Open [online blockchain frontend](https://azero.dev/?rpc=wss%3A%2F%2Fws-smartnet.test.azero.dev#/explorer) and login to your account.
 3. Make sure you have enough `SZERO` tokens (or get them on https://faucet-smartnet.test.azero.dev/).
 4. Upload & deploy these contracts: _contracts/example_borrower_ and _contracts/psp22_token_a_. For _contracts/default_provider_ set `fee_per_1M_tokens` to, for example, 900 (correcponding to 0.09% fee).
