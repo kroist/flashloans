@@ -20,8 +20,9 @@ mod default_borrower {
         /// more complex logic to advantage the loan.
         #[ink(message)]
         fn on_flashloan(&mut self, provider: AccountId, token: AccountId, amount: u128, fee: u128) -> Result<(), FlashloanBorrowerError> {
-            // actual code
+            // actual code would go there
 
+            // transfer back
             let transfer_status = PSP22Ref::transfer(&token, provider, amount+fee, Vec::<u8>::new());
             if transfer_status.is_err() {
                 return Err(FlashloanBorrowerError::ReturnToLenderFailed);
