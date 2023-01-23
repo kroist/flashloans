@@ -41,7 +41,7 @@ mod default_provider {
             if transfer_status.is_err() {
                 return Err(FlashloanProvidingError::TransferError)
             }
-            FlashloanBorrowerRef::on_flashloan(&receiver, token, Self::env().account_id(), amount, fee);
+            FlashloanBorrowerRef::on_flashloan(&receiver, Self::env().account_id(),  token, amount, fee);
             
             if PSP22Ref::balance_of(&token, Self::env().account_id()) < expected_balance_after {
                 return Err(FlashloanProvidingError::FlashloanNotReturned)
