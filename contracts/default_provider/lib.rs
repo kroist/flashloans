@@ -47,10 +47,11 @@ mod default_provider {
                 return Err(FlashloanProvidingError::TransferError)
             }
 
-            // normally, we could be able to call FlashloanBorrowerRef.on_flashloan(...), but then 
-            // transfers of token in that method unexpectedly fail - I have no reason why :s
+            // normally, we should be able to call FlashloanBorrowerRef.on_flashloan(...), but then 
+            // transfers of token in that method fail because of the reentrance bug - we have to explicity
+            // call set_allow_reentry(true) 
             self.flush();
-            let builder = FlashloanBorrowerRef::on_flashloan_builder(&receiver, Self::env().account_id(), token, amount, fee).call_flags(CallFlags::default().set_allow_reentry(false));
+            let builder = FlashloanBorrowerRef::on_flashloan_builder(&receiver, Self::env().account_id(), token, amount, fee).call_flags(CallFlags::default().set_allow_reentry(true));
             let result = match builder.fire() {
                 Ok(Ok(())) => Ok(()),
                 Ok(Err(_)) => Err(FlashloanProvidingError::CancelledByBorrower),
