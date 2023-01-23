@@ -5,6 +5,7 @@ use ink_prelude::string::String;
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum FlashloanBorrowerError {
     Custom(String),
+    FlashloanNotProvided,
     ReturnToLenderFailed,
 }
 
