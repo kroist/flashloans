@@ -1,7 +1,7 @@
 [package]
 name = "example_borrower"
 version = "1.0.1"
-authors = ["[Grzegorz Gawryal] <[grzegorz.gawryal@student.uj.edu.pl]>"]
+authors = ["Group FreeFromDebt"]
 edition = "2021"
 
 [dependencies]

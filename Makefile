@@ -1,4 +1,4 @@
-RELEASE_FLAGS = ""
+RELEASE_FLAGS = 
 
 .PHONY: test clean
 

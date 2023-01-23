@@ -15,6 +15,7 @@ mod dex_arbitrage_borrower {
     #[ink(storage)]
     #[derive(SpreadAllocate)]
     pub struct DexArbitrageBorrower {
+        owner: AccountId,
         provider: AccountId,
         token1: AccountId, 
         token2: AccountId, 
@@ -39,16 +40,15 @@ mod dex_arbitrage_borrower {
             // Swapping TOKEN2 to TOKEN1
             PairRef::swap_token_with_token(&self.dex2, self.token2, token, swapped_amount, self.price2, self.slippage);
 
-            // transfer back
+            // Transfer back
             let transfer_status = PSP22Ref::transfer(&token, provider, amount+fee, Vec::<u8>::new());
             if transfer_status.is_err() {
                 return Err(FlashloanBorrowerError::ReturnToLenderFailed);
             }
 
-            match PSP22Ref::transfer(&token, Self::env().account_id(), PSP22Ref::balance_of(&token, Self::env().account_id()), Vec::<u8>::new()) {
-                Ok(_) => Ok(()),
-                Err(_) => Err(FlashloanBorrowerError::ReturnToLenderFailed)
-            }
+            // Send rest tokens to owner (this transfer is not expected to fail, hence unwrap)
+            PSP22Ref::transfer(&token, self.owner, PSP22Ref::balance_of(&token, Self::env().account_id()), Vec::<u8>::new()).unwrap();
+            Ok(())
         }
 
     }
@@ -60,7 +60,9 @@ mod dex_arbitrage_borrower {
 
             let max_loan = FlashloanProviderRef::get_max_allowed_loan(&self.provider, self.token1);
 
-            // borrowing max amount of TOKEN1
+            // Borrowing max amount of TOKEN1
+            // FlashloanProvider will call on_flashloan reentering this contract, 
+            // so we have to use the low-level version to allow reentry.
             let builder = FlashloanProviderRef::provide_flashloan_builder(&self.provider, self.env().account_id(), self.token1, max_loan)
                 .call_flags(CallFlags::default().set_allow_reentry(true));
             match builder.fire() {
@@ -84,6 +86,7 @@ mod dex_arbitrage_borrower {
             dex2: AccountId
         ) -> Self {
             ink_lang::codegen::initialize_contract(|instance: &mut Self|{
+                instance.owner = instance.env().caller();
                 instance.provider = provider;
                 instance.token1 = token1;
                 instance.token2 = token2;
