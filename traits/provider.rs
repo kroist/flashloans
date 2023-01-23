@@ -4,7 +4,8 @@ use openbrush::traits::AccountId;
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum FlashloanProvidingError {
     TooLargeAmount,
-    FlashloanNotReturned
+    FlashloanNotReturned,
+    TransferError
 }
 
 #[openbrush::trait_definition]

@@ -7,6 +7,7 @@ use ink_lang as ink;
 mod default_borrower {
     use flashloans::traits::borrower::*;
     use ink_storage::traits::SpreadAllocate;
+    use ink_prelude::vec::Vec;
     use openbrush::contracts::traits::psp22::PSP22Ref;
 
     #[ink(storage)]

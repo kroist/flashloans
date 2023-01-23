@@ -6,6 +6,7 @@ mod default_provider {
     use flashloans::traits::provider::*;
     use flashloans::traits::borrower::FlashloanBorrowerRef;
     use ink_storage::traits::SpreadAllocate;
+    use ink_prelude::vec::Vec;
     use openbrush::contracts::traits::psp22::PSP22Ref;
     use openbrush::traits::DefaultEnv;
 
@@ -29,7 +30,7 @@ mod default_provider {
 
         #[ink(message)]
         fn provide_flashloan(&self, receiver: AccountId, token: AccountId, amount: u128) -> Result<(), FlashloanProvidingError> {
-            if self.get_max_allowed_loan(token) > amount {
+            if self.get_max_allowed_loan(token) < amount {
                 return Err(FlashloanProvidingError::TooLargeAmount)
             }
             
@@ -38,7 +39,7 @@ mod default_provider {
 
             let transfer_status = PSP22Ref::transfer(&token, receiver, amount, Vec::<u8>::new());
             if transfer_status.is_err() {
-                return Err(FlashloanProvidingError::TooLargeAmount)
+                return Err(FlashloanProvidingError::TransferError)
             }
             FlashloanBorrowerRef::on_flashloan(&receiver, token, Self::env().account_id(), amount, fee);
             
