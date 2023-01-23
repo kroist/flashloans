@@ -10,6 +10,7 @@ mod dex_arbitrage_borrower {
     use openbrush::contracts::traits::psp22::PSP22Ref;
     use openbrush::traits::DefaultEnv;
     use flashloans::traits::dex::PairRef;
+    use ink_env::CallFlags;
 
     #[ink(storage)]
     #[derive(SpreadAllocate)]
@@ -27,20 +28,15 @@ mod dex_arbitrage_borrower {
     }
 
     impl FlashloanBorrower for DexArbitrageBorrower {
-        /// Instantly returns `amount` + `fee` to provider. Normally, it would perform some 
-        /// more complex logic to advantage the loan (see comments). 
-
-        /// An important note is that we shouldn't transfer any tokens to this smart contract, 
-        /// since they could be easilly withdrawn by any caller.
         #[ink(message)]
         fn on_flashloan(&mut self, provider: AccountId, token: AccountId, amount: u128, fee: u128) -> Result<(), FlashloanBorrowerError> {
             if PSP22Ref::balance_of(&token, Self::env().account_id()) < amount {
                 return Err(FlashloanBorrowerError::FlashloanNotProvided);
             }
 
-            // actual code would go there
-
+            // Swapping TOKEN1 to TOKEN2
             let swapped_amount = PairRef::swap_token_with_token(&self.dex1, token, self.token2, amount, self.price1, self.slippage);
+            // Swapping TOKEN2 to TOKEN1
             PairRef::swap_token_with_token(&self.dex2, self.token2, token, swapped_amount, self.price2, self.slippage);
 
             // transfer back
@@ -49,9 +45,10 @@ mod dex_arbitrage_borrower {
                 return Err(FlashloanBorrowerError::ReturnToLenderFailed);
             }
 
-            // In real applications, we'd transfer all earned assets to hardcoded owner address there,
-            // so that none tokens of any kind are stored in the contract after flashloan.
-            Ok(())
+            match PSP22Ref::transfer(&token, Self::env().account_id(), PSP22Ref::balance_of(&token, Self::env().account_id()), Vec::<u8>::new()) {
+                Ok(_) => Ok(()),
+                Err(_) => Err(FlashloanBorrowerError::ReturnToLenderFailed)
+            }
         }
 
     }
@@ -59,11 +56,17 @@ mod dex_arbitrage_borrower {
     impl DexArbitrageBorrower {
 
         #[ink(message)]
-        pub fn execute_swap(&mut self) {
+        pub fn execute_swap(&mut self) -> Result<(), FlashloanBorrowerError> {
 
             let max_loan = FlashloanProviderRef::get_max_allowed_loan(&self.provider, self.token1);
 
-            FlashloanProviderRef::provide_flashloan(&self.provider, self.env().account_id(), self.token1, max_loan);
+            // borrowing max amount of TOKEN1
+            let builder = FlashloanProviderRef::provide_flashloan_builder(&self.provider, self.env().account_id(), self.token1, max_loan)
+                .call_flags(CallFlags::default().set_allow_reentry(true));
+            match builder.fire() {
+                Ok(_) => Ok(()),
+                Err(_) => Err(FlashloanBorrowerError::FlashloanNotProvided)
+            }
 
         }
 
