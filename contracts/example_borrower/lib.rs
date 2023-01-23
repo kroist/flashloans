@@ -16,6 +16,8 @@ mod default_borrower {
     pub struct DefaultBorrower {}
 
     impl FlashloanBorrower for DefaultBorrower {
+        /// Instantly returns `amount` + `fee` to provider. Normally, it would perform some 
+        /// more complex logic to advantage the loan.
         #[ink(message)]
         fn on_flashloan(&mut self, provider: AccountId, token: AccountId, amount: u128, fee: u128) -> Result<(), FlashloanBorrowerError> {
             // actual code

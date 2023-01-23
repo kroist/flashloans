@@ -22,17 +22,26 @@ mod default_provider {
     }
 
     impl FlashloanProvider for DefaultProvider {
+
+        /// Returns a fee for a flashloan, which is independent on token and equal to fee_per_1M_tokens/1M, rounded up
         #[ink(message)]
         fn get_fee(&self, _token: AccountId, amount: u128) -> u128 {
-            //fee is rounded up
             (amount*(self.fee_per_1M_tokens as u128)+1_000_000-1)/1_000_000 
         }
 
+        /// Returns max allowed loan, which is the ballance of `token`s of this contract in
         #[ink(message)]
         fn get_max_allowed_loan(&self, token: AccountId) -> u128 {
             PSP22Ref::balance_of(&token, Self::env().account_id())
         }
 
+
+        /// Provides flashloan to `receiver` of `amount` `token`s after some checks. 
+        /// Contrct at `receiver`'s address must implement `FlashloanBorrower` trait, 
+        /// and `on_flashloan` method will be called on it after performing loan.
+        /// At the end, it makes sure that loan was returned, and reverts otherwise.
+        /// This function may be reentered from `on_flashloan` method and should be safe
+        /// from reentrance attacks. 
         #[ink(message)]
         fn provide_flashloan(&mut self, receiver: AccountId, token: AccountId, amount: u128) -> Result<(), FlashloanProvidingError> {
             if self.get_max_allowed_loan(token) < amount {
