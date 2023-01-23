@@ -29,7 +29,7 @@ mod default_provider {
         }
 
         #[ink(message)]
-        fn provide_flashloan(&self, receiver: AccountId, token: AccountId, amount: u128) -> Result<(), FlashloanProvidingError> {
+        fn provide_flashloan(&mut self, receiver: AccountId, token: AccountId, amount: u128) -> Result<(), FlashloanProvidingError> {
             if self.get_max_allowed_loan(token) < amount {
                 return Err(FlashloanProvidingError::TooLargeAmount)
             }
